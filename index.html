@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizzaria Sabor da Itália</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Lora", serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      header {
+        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+        color: white;
+        padding: 20px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border-bottom: 3px solid #ffca28;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      #pizzaria-logo {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px solid #ffca28;
+        padding: 5px;
+        background: white;
+        transition: transform 0.3s ease;
+      }
+
+      #pizzaria-logo:hover {
+        transform: scale(1.1);
+      }
+
+      .header-title {
+        display: flex;
+        flex-direction: column;
+        font-family: "Playfair Display", serif;
+      }
+
+      #pizzaria-name {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #ffca28;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      #pizzaria-address {
+        font-size: 16px;
+        font-weight: 400;
+        color: #ffffff;
+        opacity: 0.95;
+        margin-top: 5px;
+        font-style: italic;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 12px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease;
+      }
+
+      #pizzaria-address:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .header-buttons {
+        display: flex;
+        gap: 15px;
+      }
+
+      .cart-btn,
+      .admin-btn {
+        background: #ffca28;
+        color: #2e7d32;
+        border: 2px solid #ffffff;
+        padding: 10px 18px;
+        cursor: pointer;
+        border-radius: 25px;
+        font-weight: bold;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .cart-btn:hover,
+      .admin-btn:hover {
+        background: #ffb300;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar {
+        display: flex;
+        align-items: center;
+      }
+
+      .menu-btn {
+        display: none;
+        background-color: #ffca28;
+        color: #2e7d32;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+        font-size: 14px;
+      }
+
+      .menu-btn:hover {
+        background-color: #ffb300;
+        transform: scale(1.05);
+      }
+
+      .nav-list {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav-list li {
+        position: relative;
+      }
+
+      .nav-list a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        font-family: "Playfair Display", serif;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-list a:hover,
+      .nav-list a.active {
+        color: #ffca28;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-list a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 2px;
+        left: 50%;
+        background: #ffca28;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+      }
+
+      .nav-list a:hover::after,
+      .nav-list a.active::after {
+        width: 70%;
+      }
+
+      main {
+        padding: 20px;
+        padding-top: 120px;
+        padding-bottom: 80px;
+        min-height: calc(100vh - 140px);
+      }
+
+      .carousel {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        overflow: hidden;
+        position: relative;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      #carousel-container {
+        display: flex;
+        width: 100%;
+        transition: transform 0.5s ease;
+      }
+
+      .carousel-slide {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      #products {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .product-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .product-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: opacity 0.3s;
+      }
+
+      .product-card img:hover {
+        opacity: 0.9;
+      }
+
+      .product-card h3 {
+        font-size: 18px;
+        margin: 10px 0;
+        font-family: "Playfair Display", serif;
+      }
+
+      .price-container {
+        margin: 10px 0;
+      }
+
+      .single-price {
+        font-size: 16px;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+
+      .product-card button {
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+      }
+
+      .product-card button:hover {
+        background-color: #1b5e20;
+        transform: scale(1.05);
+      }
+
+      .floating-btn {
+        position: fixed;
+        bottom: 70px;
+        right: 20px;
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s, transform 0.2s;
+        z-index: 1000;
+        font-family: "Playfair Display", serif;
+        animation: pulse 1.5s infinite;
+      }
+
+      .floating-btn:hover {
+        background-color: #b71c1c;
+        transform: scale(1.1);
+        animation: none;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
+        }
+        70% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 10px rgba(211, 47, 47, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+        }
+      }
+
+      footer {
+        background-color: #2e7d32;
+        color: white;
+        text-align: center;
+        padding: 15px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 50px;
+        font-size: 14px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 2000;
+      }
+
+      .modal.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+      }
+
+      #cart-modal .modal-content {
+        background-color: #fff8e1;
+        border: 2px solid #8a1c1c;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      #cart-modal h2 {
+        color: #8a1c1c;
+        font-size: 24px;
+        margin-bottom: 15px;
+        font-family: "Playfair Display", serif;
+        text-align: center;
+        border-bottom: 2px solid #e6c84f;
+        padding-bottom: 10px;
+      }
+
+      #cart-modal .cart-item {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 8px;
+        border: 1px solid #e6c84f;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      #cart-modal .cart-item:hover {
+        transform: translateY(-2px);
+      }
+
+      #cart-modal .cart-item img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        margin-right: 15px;
+        border-radius: 5px;
+        border: 2px solid #e6c84f;
+      }
+
+      #cart-modal .cart-item span {
+        flex-grow: 1;
+        font-size: 16px;
+        color: #333;
+        font-family: "Lora", serif;
+      }
+
+      #cart-modal .cart-item button {
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+      }
+
+      #cart-modal .cart-item button:hover {
+        background-color: #b71c1c;
+        transform: scale(1.05);
+      }
+
+      #cart-modal #cart-total {
+        font-size: 18px;
+        font-weight: bold;
+        color: #8a1c1c;
+        text-align: right;
+        margin: 15px 0;
+        font-family: "Playfair Display", serif;
+      }
+
+      #cart-modal button {
+        background-color: #8a1c1c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        display: block;
+        margin: 20px auto 0;
+        width: 80%;
+      }
+
+      #cart-modal button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      #cart-modal button:hover:not(:disabled) {
+        background-color: #6b1515;
+        transform: scale(1.05);
+      }
+
+      #custom-pizza-modal .modal-content {
+        background-color: #fff8e1;
+        border: 2px solid #8a1c1c;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      #custom-pizza-modal h2 {
+        color: #8a1c1c;
+        font-size: 24px;
+        margin-bottom: 15px;
+        font-family: "Playfair Display", serif;
+        text-align: center;
+        border-bottom: 2px solid #e6c84f;
+        padding-bottom: 10px;
+      }
+
+      #custom-pizza-modal select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #e6c84f;
+        background-color: #fff;
+        color: #333;
+        font-size: 16px;
+        font-family: "Lora", serif;
+        transition: border-color 0.3s;
+      }
+
+      #custom-pizza-modal select:hover,
+      #custom-pizza-modal select:focus {
+        border-color: #8a1c1c;
+        outline: none;
+      }
+
+      #custom-pizza-modal #flavor-selectors select {
+        margin: 5px 0;
+      }
+
+      #custom-pizza-modal #pizza-svg {
+        width: 220px;
+        height: 220px;
+        margin: 20px auto;
+        border: 3px solid #e6c84f;
+        border-radius: 50%;
+        padding: 10px;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #custom-pizza-modal button {
+        background-color: #8a1c1c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        display: block;
+        margin: 20px auto 0;
+        width: 80%;
+      }
+
+      #custom-pizza-modal button:hover {
+        background-color: #6b1515;
+        transform: scale(1.05);
+      }
+
+      #checkout-modal .modal-content {
+        background: linear-gradient(135deg, #fff8e1 0%, #f5e8c7 100%);
+        border: 3px solid #8a1c1c;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      }
+
+      #checkout-modal h2 {
+        color: #8a1c1c;
+        font-size: 28px;
+        margin-bottom: 20px;
+        font-family: "Playfair Display", serif;
+        text-align: center;
+        border-bottom: 3px solid #e6c84f;
+        padding-bottom: 12px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      #checkout-modal input,
+      #checkout-modal select {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 10px;
+        border: 2px solid #e6c84f;
+        background-color: #fff;
+        color: #333;
+        font-size: 16px;
+        font-family: "Lora", serif;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+
+      #checkout-modal input:hover,
+      #checkout-modal input:focus,
+      #checkout-modal select:hover,
+      #checkout-modal select:focus {
+        border-color: #8a1c1c;
+        box-shadow: 0 0 5px rgba(138, 28, 28, 0.3);
+        outline: none;
+      }
+
+      #checkout-modal button {
+        background-color: #8a1c1c;
+        color: white;
+        border: 2px solid #e6c84f;
+        padding: 14px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        display: block;
+        margin: 25px auto 0;
+        width: 85%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      #checkout-modal button:hover {
+        background-color: #6b1515;
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      #admin-modal .modal-content {
+        background-color: #2f2f2f;
+        color: #e6c84f;
+        padding: 25px;
+      }
+
+      #admin-modal h2,
+      #admin-modal h3 {
+        color: #e6c84f;
+        margin-bottom: 15px;
+        font-family: "Playfair Display", serif;
+      }
+
+      #admin-modal input,
+      #admin-modal select {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0 10px 0;
+        border: 1px solid #e6c84f;
+        border-radius: 5px;
+        background-color: #3c3c3c;
+        color: white;
+      }
+
+      #admin-modal button {
+        background-color: #e6c84f;
+        color: #2f2f2f;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        margin: 5px 0;
+        font-family: "Playfair Display", serif;
+      }
+
+      #admin-modal button:hover {
+        background-color: #d4b33f;
+      }
+
+      #admin-modal .forgot-password {
+        background: none;
+        border: none;
+        color: #e6c84f;
+        text-decoration: underline;
+        cursor: pointer;
+        text-align: center;
+        display: block;
+        margin: 10px auto;
+        padding: 0;
+        width: auto;
+      }
+
+      #admin-modal .forgot-password:hover {
+        color: #d4b33f;
+      }
+
+      #admin-modal .close-btn {
+        background-color: #d32f2f;
+        color: white;
+        margin-top: 20px;
+      }
+
+      #admin-modal .close-btn:hover {
+        background-color: #b71c1c;
+      }
+
+      #pizza-list {
+        margin-top: 20px;
+      }
+
+      #pizza-list p {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #3c3c3c;
+        border-radius: 5px;
+        margin: 5px 0;
+      }
+
+      #pizza-list button {
+        background-color: #d32f2f;
+        color: white;
+        padding: 5px 10px;
+        width: auto;
+      }
+
+      #pizza-list button:hover {
+        background-color: #b71c1c;
+      }
+
+      #product-detail-modal .modal-content {
+        background-color: #fff8e1;
+        border: 2px solid #8a1c1c;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      #product-detail-modal h2 {
+        color: #8a1c1c;
+        font-size: 24px;
+        margin-bottom: 15px;
+        font-family: "Playfair Display", serif;
+        text-align: center;
+        border-bottom: 2px solid #e6c84f;
+        padding-bottom: 10px;
+      }
+
+      #product-detail-modal img {
+        border: 3px solid #e6c84f;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease;
+      }
+
+      #product-detail-modal img:hover {
+        transform: scale(1.05);
+      }
+
+      #product-detail-modal p {
+        color: #333;
+        font-size: 16px;
+        margin: 10px 0;
+        line-height: 1.5;
+      }
+
+      #product-detail-modal #product-detail-price {
+        color: #8a1c1c;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin: 15px 0;
+      }
+
+      #product-detail-modal button {
+        background-color: #8a1c1c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        display: block;
+        margin: 20px auto 0;
+        width: 80%;
+      }
+
+      #product-detail-modal button:hover {
+        background-color: #6b1515;
+        transform: scale(1.05);
+      }
+
+      #alert-modal .modal-content {
+        background-color: #2f2f2f;
+        color: #e6c84f;
+        padding: 25px;
+        border-radius: 10px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      #alert-modal h2 {
+        color: #e6c84f;
+        font-size: 24px;
+        margin-bottom: 15px;
+        font-family: "Playfair Display", serif;
+        text-align: center;
+      }
+
+      #alert-modal p {
+        font-size: 16px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-family: "Lora", serif;
+      }
+
+      #alert-modal #alert-ok-btn {
+        background-color: #e6c84f;
+        color: #2f2f2f;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      #alert-modal #alert-ok-btn:hover {
+        background-color: #d4b33f;
+        transform: scale(1.05);
+      }
+
+      #alert-modal .close {
+        color: #e6c84f;
+        font-size: 24px;
+      }
+
+      @media (max-width: 768px) {
+        header {
+          padding: 15px;
+          flex-direction: column;
+          align-items: flex-start;
+          height: auto;
+          min-height: 150px;
+          background: #2e7d32;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          border-bottom: none;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          position: relative;
+        }
+
+        #pizzaria-logo {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          border: 2px solid #ffca28;
+          padding: 5px;
+          background: white;
+          transition: transform 0.3s ease;
+        }
+
+        #pizzaria-logo:hover {
+          transform: scale(1.05);
+        }
+
+        #pizzaria-name {
+          font-size: 24px;
+          color: #ffca28;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+          text-transform: uppercase;
+        }
+
+        #pizzaria-address {
+          display: none;
+        }
+
+        .header-right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          position: absolute;
+          top: 10px;
+          right: 15px;
+          text-align: right;
+        }
+
+        .header-buttons {
+          display: flex;
+          gap: 8px;
+        }
+
+        .cart-btn,
+        .admin-btn {
+          padding: 6px 12px;
+          font-size: 14px;
+          border: 1px solid #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar {
+          margin-top: 5px;
+        }
+
+        .menu-btn {
+          display: block;
+          padding: 6px 12px;
+          font-size: 14px;
+          border-radius: 20px;
+          border: 1px solid #ffffff;
+        }
+
+        #mobile-header-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        #pizzaria-name-mobile {
+          font-size: 18px;
+          font-weight: bold;
+          color: #ffca28;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+          font-family: "Playfair Display", serif;
+        }
+
+        #mobile-address {
+          font-size: 12px;
+          color: #ffffff;
+          opacity: 0.9;
+          margin-top: 4px;
+          font-style: italic;
+          font-family: "Lora", serif;
+          border-top: 1px solid rgba(255, 202, 40, 0.3);
+          padding-top: 4px;
+          width: 80%;
+          text-align: center;
+        }
+
+        .nav-list {
+          display: none;
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background-color: #2e7d32;
+          width: 200px;
+          padding: 15px;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          transform: scale(0.9);
+          opacity: 0;
+          transition: transform 0.3s ease, opacity 0.3s ease;
+          z-index: 1000;
+        }
+
+        .nav-list.show {
+          display: block;
+          transform: scale(1);
+          opacity: 1;
+        }
+
+        .nav-list li {
+          margin: 10px 0;
+        }
+
+        .nav-list a {
+          background: none;
+          border-radius: 5px;
+          font-size: 14px;
+        }
+
+        .nav-list a::after {
+          display: none;
+        }
+
+        main {
+          padding-top: 160px;
+          padding-bottom: 60px;
+        }
+
+        .carousel {
+          max-width: 100%;
+          margin: 10px 0;
+        }
+
+        .carousel-slide {
+          height: 180px;
+        }
+
+        .floating-btn {
+          bottom: 70px;
+          right: 15px;
+          padding: 12px;
+        }
+
+        footer {
+          font-size: 12px;
+          height: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-left">
+        <img
+          id="pizzaria-logo"
+          src="https://via.placeholder.com/60"
+          alt="Logo"
+        />
+        <div class="header-title">
+          <span id="pizzaria-name">Pizzaria Sabor da Itália</span>
+          <span id="pizzaria-address">Rua Icarai, 310</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-buttons">
+          <button class="cart-btn" onclick="toggleCart()">
+            🛒 <span id="cart-count">0</span>
+          </button>
+          <button class="admin-btn" onclick="openAdminModal()">👤</button>
+        </div>
+        <div class="navbar">
+          <button class="menu-btn" onclick="toggleMenu()">☰</button>
+          <ul id="nav-list" class="nav-list"></ul>
+        </div>
+        <div id="mobile-header-info">
+          <span id="pizzaria-name-mobile">Pizzaria Sabor da Itália</span>
+          <span id="mobile-address">Rua Icarai, 310</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="carousel">
+        <div id="carousel-container"></div>
+      </div>
+      <section id="products"></section>
+    </main>
+
+    <button class="floating-btn" onclick="openCustomPizzaModal()">🍕</button>
+
+    <footer>
+      <p>© 2025 Pizzaria Sabor da Itália</p>
+    </footer>
+
+    <div id="cart-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="toggleCart()">×</span>
+        <h2>Carrinho</h2>
+        <div id="cart-items"></div>
+        <p id="cart-total">Total: R$ 0,00</p>
+        <button id="checkout-btn" onclick="openCheckoutModal()">
+          Finalizar Pedido
+        </button>
+      </div>
+    </div>
+
+    <div id="admin-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeAdminModal()">×</span>
+        <div id="admin-login">
+          <h2>Login Admin</h2>
+          <input type="password" id="admin-password" placeholder="Senha" />
+          <button onclick="adminLogin()">Entrar</button>
+          <button class="forgot-password" onclick="showResetPassword()">
+            Esqueceu a senha?
+          </button>
+          <button class="close-btn" onclick="closeAdminModal()">Fechar</button>
+        </div>
+        <div id="admin-reset" style="display: none">
+          <h2>Redefinir Senha</h2>
+          <input type="text" id="reset-keyword" placeholder="Palavra-chave" />
+          <input type="password" id="new-password" placeholder="Nova Senha" />
+          <button onclick="resetPassword()">Redefinir</button>
+          <button class="forgot-password" onclick="showAdminLogin()">
+            Voltar ao Login
+          </button>
+          <button class="close-btn" onclick="closeAdminModal()">Fechar</button>
+        </div>
+        <div id="admin-form" style="display: none"></div>
+      </div>
+    </div>
+
+    <div id="checkout-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeCheckoutModal()">×</span>
+        <h2>Finalizar Pedido</h2>
+        <form id="checkout-form">
+          <input type="text" id="customer-name" placeholder="Nome" required />
+          <input
+            type="text"
+            id="customer-phone"
+            placeholder="Telefone"
+            required
+          />
+          <input
+            type="text"
+            id="customer-address"
+            placeholder="Endereço"
+            required
+          />
+          <select id="payment-method" required>
+            <option value="">Método de Pagamento</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Cartão">Cartão</option>
+            <option value="PIX">PIX</option>
+          </select>
+          <button type="submit">Enviar Pedido</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="custom-pizza-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeCustomPizzaModal()">×</span>
+        <h2>Monte sua Pizza</h2>
+        <select id="flavor-count" onchange="updateFlavorSelectors()">
+          <option value="2">2 Sabores</option>
+          <option value="3">3 Sabores</option>
+          <option value="4">4 Sabores</option>
+          <option value="8">8 Sabores</option>
+        </select>
+        <div id="flavor-selectors"></div>
+        <svg
+          id="pizza-svg"
+          width="200"
+          height="200"
+          viewBox="0 0 200 200"
+        ></svg>
+        <button onclick="addCustomPizzaToCart()">Adicionar ao Carrinho</button>
+      </div>
+    </div>
+
+    <div id="product-detail-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeProductDetailModal()">×</span>
+        <h2 id="product-detail-name"></h2>
+        <img
+          id="product-detail-image"
+          src=""
+          alt=""
+          style="width: 100%; height: 200px; object-fit: cover"
+        />
+        <p id="product-detail-description"></p>
+        <p id="product-detail-price"></p>
+        <button onclick="addToCartFromDetail()">Adicionar ao Carrinho</button>
+      </div>
+    </div>
+
+    <div id="alert-modal" class="modal">
+      <div class="modal-content" id="alert-modal-content">
+        <span class="close" onclick="closeAlertModal()">×</span>
+        <h2 id="alert-title">Aviso</h2>
+        <p id="alert-message"></p>
+        <button id="alert-ok-btn" onclick="closeAlertModal()">OK</button>
+      </div>
+    </div>
+
+    <script>
+      const initialData = {
+        pizzas: [
+          {
+            id: "1",
+            name: "Margherita",
+            price: 35.9,
+            description: "Molho de tomate, muçarela e manjericão.",
+            image:
+              "https://images.unsplash.com/photo-1604068549290-dea0e4b45da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            category: "Pizzas Tradicionais",
+          },
+          {
+            id: "2",
+            name: "Calabresa",
+            price: 38.9,
+            description: "Molho de tomate, calabresa e cebola.",
+            image:
+              "https://images.unsplash.com/photo-1627627331051-703813f99b14?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            category: "Pizzas Tradicionais",
+          },
+          {
+            id: "3",
+            name: "Chocolate",
+            price: 42.0,
+            description: "Chocolate derretido e granulado.",
+            image:
+              "https://images.unsplash.com/photo-1595877175789-795d5cc88537?ixlib=rb-4.0white3&auto=format&fit=crop&w=300&q=80",
+            category: "Pizzas Doces",
+          },
+        ],
+        categories: ["Pizzas Tradicionais", "Pizzas Doces", "Pizzas Salgadas"],
+        cart: [],
+        carouselImages: [
+          "https://images.unsplash.com/photo-1594007654729-407eedc4be65?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1571066811602-716837d9f582?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        ],
+        pizzariaConfig: {
+          name: "Pizzaria Sabor da Itália",
+          logo: "https://via.placeholder.com/60",
+          whatsapp: "",
+          adminPassword: "Gcipione",
+          address: "Rua Icarai, 310",
+        },
+      };
+
+      let pizzas =
+        JSON.parse(localStorage.getItem("pizzas")) || initialData.pizzas;
+      let categories =
+        JSON.parse(localStorage.getItem("categories")) ||
+        initialData.categories;
+      let cart = JSON.parse(localStorage.getItem("cart")) || initialData.cart;
+      let carouselImages =
+        JSON.parse(localStorage.getItem("carouselImages")) ||
+        initialData.carouselImages;
+      let pizzariaConfig =
+        JSON.parse(localStorage.getItem("pizzariaConfig")) ||
+        initialData.pizzariaConfig;
+      let selectedCategory = "all";
+      let currentSlide = 0;
+      let slideInterval;
+      let selectedPizzaId = null;
+
+      const saveToLocalStorage = () => {
+        localStorage.setItem("pizzas", JSON.stringify(pizzas));
+        localStorage.setItem("categories", JSON.stringify(categories));
+        localStorage.setItem("cart", JSON.stringify(cart));
+        localStorage.setItem("carouselImages", JSON.stringify(carouselImages));
+        localStorage.setItem("pizzariaConfig", JSON.stringify(pizzariaConfig));
+      };
+
+      const formatPrice = (price) => `R$ ${price.toFixed(2).replace(".", ",")}`;
+
+      const showAlertModal = (message, title = "Aviso") => {
+        const modal = document.getElementById("alert-modal");
+        document.getElementById("alert-title").textContent = title;
+        document.getElementById("alert-message").textContent = message;
+        modal.style.display = "block";
+        setTimeout(() => modal.classList.add("show"), 10);
+      };
+
+      const closeAlertModal = () => {
+        const modal = document.getElementById("alert-modal");
+        modal.classList.remove("show");
+        setTimeout(() => (modal.style.display = "none"), 300);
+      };
+
+      const loadInitialData = () => {
+        if (!pizzariaConfig.adminPassword) {
+          pizzariaConfig.adminPassword = "Gcipione";
+          saveToLocalStorage();
+        }
+        updatePizzariaDisplay();
+        renderNavbar();
+        renderCarousel();
+        startCarousel();
+        renderPizzas();
+        updateCartCount();
+        setupCheckoutForm();
+        adjustHeaderVisibility();
+      };
+
+      const renderNavbar = () => {
+        const navbar = document.getElementById("nav-list");
+        navbar.innerHTML =
+          '<li><a href="#" data-category="all" class="active">Todas</a></li>' +
+          categories
+            .map(
+              (category) =>
+                `<li><a href="#" data-category="${category}">${category}</a></li>`
+            )
+            .join("");
+        document.querySelectorAll(".nav-list a").forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            filterCategory(link.getAttribute("data-category"));
+          });
+        });
+      };
+
+      const filterCategory = (category) => {
+        selectedCategory = category;
+        renderPizzas();
+        document.querySelectorAll(".nav-list a").forEach((link) => {
+          link.classList.toggle(
+            "active",
+            link.getAttribute("data-category") === category
+          );
+        });
+        if (window.innerWidth <= 768) toggleMenu();
+      };
+
+      const toggleMenu = () => {
+        const navList = document.getElementById("nav-list");
+        navList.classList.toggle("show");
+      };
+
+      const openAdminModal = () => {
+        const modal = document.getElementById("admin-modal");
+        modal.style.display = "block";
+        setTimeout(() => modal.classList.add("show"), 10);
+        showAdminLogin();
+      };
+
+      const closeAdminModal = () => {
+        const modal = document.getElementById("admin-modal");
+        modal.classList.remove("show");
+        setTimeout(() => (modal.style.display = "none"), 300);
+      };
+
+      const showAdminLogin = () => {
+        document.getElementById("admin-login").style.display = "block";
+        document.getElementById("admin-reset").style.display = "none";
+        document.getElementById("admin-form").style.display = "none";
+      };
+
+      const showResetPassword = () => {
+        document.getElementById("admin-login").style.display = "none";
+        document.getElementById("admin-reset").style.display = "block";
+        document.getElementById("admin-form").style.display = "none";
+      };
+
+      const adminLogin = () => {
+        const password = document.getElementById("admin-password").value;
+        if (password === pizzariaConfig.adminPassword) {
+          document.getElementById("admin-login").style.display = "none";
+          document.getElementById("admin-form").style.display = "block";
+          updateAdminForm();
+        } else {
+          showAlertModal("Senha incorreta!", "Erro");
+        }
+      };
+
+      const resetPassword = () => {
+        const keyword = document.getElementById("reset-keyword").value;
+        const newPassword = document.getElementById("new-password").value;
+
+        if (keyword === "chave") {
+          if (newPassword) {
+            pizzariaConfig.adminPassword = newPassword;
+            saveToLocalStorage();
+            showAlertModal("Senha redefinida com sucesso!", "Sucesso");
+            showAdminLogin();
+          } else {
+            showAlertModal("Por favor, insira uma nova senha!", "Erro");
+          }
+        } else {
+          showAlertModal("Palavra-chave incorreta!", "Erro");
+        }
+      };
+
+      const updateAdminForm = () => {
+        const adminForm = document.getElementById("admin-form");
+        adminForm.innerHTML = `
+                <h2>Painel de Administração</h2>
+                <h3>Configurações da Pizzaria</h3>
+                <input type="text" id="pizzaria-name-input" value="${
+                  pizzariaConfig.name
+                }" placeholder="Nome da Pizzaria">
+                <input type="text" id="pizzaria-logo-input" value="${
+                  pizzariaConfig.logo
+                }" placeholder="URL do Logo">
+                <input type="text" id="pizzaria-address-input" value="${
+                  pizzariaConfig.address
+                }" placeholder="Endereço da Pizzaria">
+                <button onclick="updatePizzaria()">Atualizar Configurações</button>
+
+                <h3>Adicionar Nova Pizza</h3>
+                <input type="text" id="pizza-name" placeholder="Nome da Pizza">
+                <input type="number" id="pizza-price" placeholder="Preço" step="0.01">
+                <input type="text" id="pizza-description" placeholder="Descrição">
+                <input type="text" id="pizza-image" placeholder="URL da Imagem">
+                <select id="pizza-category">
+                    <option value="">Selecione a Categoria</option>
+                    ${categories
+                      .map((cat) => `<option value="${cat}">${cat}</option>`)
+                      .join("")}
+                </select>
+                <button onclick="addPizza()">Adicionar Pizza</button>
+
+                <h3>Gerenciar Pizzas</h3>
+                <div id="pizza-list">
+                    ${pizzas
+                      .map(
+                        (pizza, index) => `
+                        <p>${pizza.name} - ${formatPrice(pizza.price)} 
+                        <button onclick="deletePizza(${index})">Excluir</button></p>
+                    `
+                      )
+                      .join("")}
+                </div>
+
+                <h3>Imagens do Carrossel</h3>
+                <input type="text" id="carousel-image-input" placeholder="URL da Imagem">
+                <button onclick="addCarouselImage()">Adicionar Imagem</button>
+                <div id="carousel-images">
+                    ${carouselImages
+                      .map(
+                        (img, i) =>
+                          `<p>${img} <button onclick="deleteCarouselImage(${i})">Excluir</button></p>`
+                      )
+                      .join("")}
+                </div>
+
+                <button class="close-btn" onclick="closeAdminModal()">Fechar</button>
+            `;
+      };
+
+      const updatePizzaria = () => {
+        pizzariaConfig.name = document.getElementById(
+          "pizzaria-name-input"
+        ).value;
+        pizzariaConfig.logo = document.getElementById(
+          "pizzaria-logo-input"
+        ).value;
+        pizzariaConfig.address = document.getElementById(
+          "pizzaria-address-input"
+        ).value;
+        saveToLocalStorage();
+        updatePizzariaDisplay();
+        showAlertModal("Configurações atualizadas!", "Sucesso");
+      };
+
+      const updatePizzariaDisplay = () => {
+        document.getElementById("pizzaria-name").textContent =
+          pizzariaConfig.name;
+        document.getElementById("pizzaria-name-mobile").textContent =
+          pizzariaConfig.name;
+        document.getElementById("pizzaria-address").textContent =
+          pizzariaConfig.address;
+        document.getElementById("mobile-address").textContent =
+          pizzariaConfig.address;
+        document.getElementById("pizzaria-logo").src = pizzariaConfig.logo;
+        adjustHeaderVisibility();
+      };
+
+      const adjustHeaderVisibility = () => {
+        const mobileHeaderInfo = document.getElementById("mobile-header-info");
+        if (window.innerWidth <= 768) {
+          mobileHeaderInfo.style.display = "flex";
+        } else {
+          mobileHeaderInfo.style.display = "none";
+        }
+      };
+
+      const addPizza = () => {
+        const name = document.getElementById("pizza-name").value;
+        const price = parseFloat(document.getElementById("pizza-price").value);
+        const description = document.getElementById("pizza-description").value;
+        const image =
+          document.getElementById("pizza-image").value ||
+          "https://via.placeholder.com/300";
+        const category = document.getElementById("pizza-category").value;
+
+        if (!name || !price || !category) {
+          showAlertModal(
+            "Por favor, preencha nome, preço e categoria!",
+            "Erro"
+          );
+          return;
+        }
+
+        const pizza = {
+          id: Date.now().toString(),
+          name,
+          price,
+          description,
+          image,
+          category,
+        };
+        pizzas.push(pizza);
+        saveToLocalStorage();
+        renderPizzas();
+        updateAdminForm();
+        showAlertModal("Pizza adicionada com sucesso!", "Sucesso");
+      };
+
+      const deletePizza = (index) => {
+        if (confirm("Tem certeza que deseja excluir esta pizza?")) {
+          pizzas.splice(index, 1);
+          saveToLocalStorage();
+          renderPizzas();
+          updateAdminForm();
+        }
+      };
+
+      const renderPizzas = () => {
+        const productsGrid = document.getElementById("products");
+        const filteredPizzas =
+          selectedCategory === "all"
+            ? pizzas
+            : pizzas.filter((p) => p.category === selectedCategory);
+        productsGrid.innerHTML = filteredPizzas
+          .map(
+            (pizza) => `
+                <div class="product-card">
+                    <img src="${pizza.image}" alt="${
+              pizza.name
+            }" onclick="showProductDetail('${pizza.id}')">
+                    <h3>${pizza.name}</h3>
+                    <div class="price-container">
+                        <span class="single-price">${formatPrice(
+                          pizza.price
+                        )}</span>
+                    </div>
+                    <button onclick="addToCart('${
+                      pizza.id
+                    }')">Adicionar ao Carrinho</button>
+                </div>
+            `
+          )
+          .join("");
+      };
+
+      const showProductDetail = (pizzaId) => {
+        const pizza = pizzas.find((p) => p.id === pizzaId);
+        if (!pizza) return;
+        selectedPizzaId = pizzaId;
+        document.getElementById("product-detail-name").textContent = pizza.name;
+        document.getElementById("product-detail-image").src = pizza.image;
+        document.getElementById("product-detail-description").textContent =
+          pizza.description;
+        document.getElementById("product-detail-price").textContent =
+          formatPrice(pizza.price);
+        const modal = document.getElementById("product-detail-modal");
+        modal.style.display = "block";
+        setTimeout(() => modal.classList.add("show"), 10);
+      };
+
+      const closeProductDetailModal = () => {
+        const modal = document.getElementById("product-detail-modal");
+        modal.classList.remove("show");
+        setTimeout(() => (modal.style.display = "none"), 300);
+      };
+
+      const addToCartFromDetail = () => {
+        if (selectedPizzaId) addToCart(selectedPizzaId);
+        closeProductDetailModal();
+      };
+
+      const addToCart = (pizzaId) => {
+        const cartItem = cart.find((item) => item.pizzaId === pizzaId);
+        if (cartItem) cartItem.quantity++;
+        else cart.push({ pizzaId, quantity: 1 });
+        updateCartCount();
+        renderCart();
+        saveToLocalStorage();
+      };
+
+      const renderCart = () => {
+        const cartItems = document.getElementById("cart-items");
+        let total = 0;
+        cartItems.innerHTML = cart
+          .map((item) => {
+            if (item.isCustom) {
+              const flavorNames = item.flavors
+                .map((flavorId, index) => {
+                  const pizza = pizzas.find((p) => p.id === flavorId);
+                  return `${index + 1}º Sabor: ${
+                    pizza ? pizza.name : "Desconhecido"
+                  }`;
+                })
+                .join("<br>");
+              const avgPrice =
+                item.flavors.reduce((sum, flavorId) => {
+                  const pizza = pizzas.find((p) => p.id === flavorId);
+                  return sum + (pizza ? pizza.price : 0);
+                }, 0) / item.flavors.length;
+              const itemTotal = avgPrice * item.quantity;
+              total += itemTotal;
+              return `
+                        <div class="cart-item">
+                            <img src="${
+                              pizzas.find((p) => p.id === item.flavors[0])
+                                ?.image || "https://via.placeholder.com/50"
+                            }" alt="Pizza Personalizada">
+                            <span>Pizza Personalizada - ${
+                              item.quantity
+                            }x - ${formatPrice(
+                itemTotal
+              )}<br>${flavorNames}</span>
+                            <button onclick="removeFromCart('${
+                              item.pizzaId
+                            }')">Excluir</button>
+                        </div>
+                    `;
+            } else {
+              const pizza = pizzas.find((p) => p.id === item.pizzaId);
+              const itemTotal = pizza.price * item.quantity;
+              total += itemTotal;
+              return `
+                        <div class="cart-item">
+                            <img src="${pizza.image}" alt="${pizza.name}">
+                            <span>${pizza.name} - ${
+                item.quantity
+              }x - ${formatPrice(itemTotal)}</span>
+                            <button onclick="removeFromCart('${
+                              pizza.id
+                            }')">Excluir</button>
+                        </div>
+                    `;
+            }
+          })
+          .join("");
+        document.getElementById(
+          "cart-total"
+        ).textContent = `Total: ${formatPrice(total)}`;
+        const checkoutButton = document.getElementById("checkout-btn");
+        checkoutButton.disabled = cart.length === 0;
+      };
+
+      const removeFromCart = (pizzaId) => {
+        cart = cart.filter((item) => item.pizzaId !== pizzaId);
+        updateCartCount();
+        renderCart();
+        saveToLocalStorage();
+      };
+
+      const updateCartCount = () => {
+        document.getElementById("cart-count").textContent = cart.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+      };
+
+      const toggleCart = () => {
+        const modal = document.getElementById("cart-modal");
+        modal.classList.toggle("show");
+        if (modal.classList.contains("show")) {
+          modal.style.display = "block";
+          renderCart();
+        } else {
+          setTimeout(() => (modal.style.display = "none"), 300);
+        }
+      };
+
+      const renderCarousel = () => {
+        const carousel = document.getElementById("carousel-container");
+        if (!carousel) return;
+        carousel.style.width = `${carouselImages.length * 100}%`;
+        carousel.innerHTML = carouselImages
+          .map(
+            (img, index) => `
+                <img src="${img}" alt="Slide ${
+              index + 1
+            }" class="carousel-slide" style="width: ${
+              100 / carouselImages.length
+            }%;">
+            `
+          )
+          .join("");
+        updateCarouselPosition();
+      };
+
+      const updateCarouselPosition = () => {
+        const carousel = document.getElementById("carousel-container");
+        if (!carousel) return;
+        carousel.style.transform = `translateX(-${
+          currentSlide * (100 / carouselImages.length)
+        }%)`;
+      };
+
+      const startCarousel = () => {
+        clearInterval(slideInterval);
+        if (carouselImages.length > 1)
+          slideInterval = setInterval(nextSlide, 5000);
+      };
+
+      const nextSlide = () => {
+        currentSlide = (currentSlide + 1) % carouselImages.length;
+        updateCarouselPosition();
+      };
+
+      const prevSlide = () => {
+        currentSlide =
+          (currentSlide - 1 + carouselImages.length) % carouselImages.length;
+        updateCarouselPosition();
+      };
+
+      const addCarouselImage = () => {
+        const imageUrl = document
+          .getElementById("carousel-image-input")
+          .value.trim();
+        if (imageUrl) {
+          carouselImages.push(imageUrl);
+          saveToLocalStorage();
+          renderCarousel();
+          updateAdminForm();
+          startCarousel();
+        }
+      };
+
+      const deleteCarouselImage = (index) => {
+        if (confirm("Tem certeza que deseja excluir esta imagem?")) {
+          carouselImages.splice(index, 1);
+          if (currentSlide >= carouselImages.length)
+            currentSlide = carouselImages.length - 1;
+          if (currentSlide < 0) currentSlide = 0;
+          saveToLocalStorage();
+          renderCarousel();
+          updateAdminForm();
+          startCarousel();
+        }
+      };
+
+      const openCheckoutModal = () => {
+        if (cart.length === 0) {
+          showAlertModal(
+            "O carrinho está vazio! Adicione itens antes de finalizar o pedido.",
+            "Erro"
+          );
+          return;
+        }
+        const modal = document.getElementById("checkout-modal");
+        modal.style.display = "block";
+        setTimeout(() => modal.classList.add("show"), 10);
+        toggleCart();
+      };
+
+      const closeCheckoutModal = () => {
+        const modal = document.getElementById("checkout-modal");
+        modal.classList.remove("show");
+        setTimeout(() => (modal.style.display = "none"), 300);
+      };
+
+      const setupCheckoutForm = () => {
+        const form = document.getElementById("checkout-form");
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = document.getElementById("customer-name").value;
+          const phone = document.getElementById("customer-phone").value;
+          const address = document.getElementById("customer-address").value;
+          const payment = document.getElementById("payment-method").value;
+
+          if (!name || !phone || !address || !payment) {
+            showAlertModal("Por favor, preencha todos os campos!", "Erro");
+            return;
+          }
+
+          showAlertModal(
+            `Pedido enviado com sucesso!\nNome: ${name}\nTelefone: ${phone}\nEndereço: ${address}\nPagamento: ${payment}`,
+            "Sucesso"
+          );
+          cart = [];
+          saveToLocalStorage();
+          updateCartCount();
+          closeCheckoutModal();
+        });
+      };
+
+      const openCustomPizzaModal = () => {
+        const modal = document.getElementById("custom-pizza-modal");
+        modal.style.display = "block";
+        setTimeout(() => modal.classList.add("show"), 10);
+        updateFlavorSelectors();
+      };
+
+      const closeCustomPizzaModal = () => {
+        const modal = document.getElementById("custom-pizza-modal");
+        modal.classList.remove("show");
+        setTimeout(() => (modal.style.display = "none"), 300);
+      };
+
+      const updateFlavorSelectors = () => {
+        const flavorCount = parseInt(
+          document.getElementById("flavor-count").value
+        );
+        const flavorSelectorsDiv = document.getElementById("flavor-selectors");
+        flavorSelectorsDiv.innerHTML = "";
+
+        for (let i = 0; i < flavorCount; i++) {
+          const select = document.createElement("select");
+          select.id = `flavor-select-${i}`;
+          select.innerHTML =
+            '<option value="">Selecione o sabor ' +
+            (i + 1) +
+            "</option>" +
+            pizzas
+              .map(
+                (pizza) => `<option value="${pizza.id}">${pizza.name}</option>`
+              )
+              .join("");
+          select.onchange = () => {
+            updateFlavorOptions();
+            updatePizzaPreview();
+          };
+          flavorSelectorsDiv.appendChild(select);
+        }
+
+        updateFlavorOptions();
+        updatePizzaPreview();
+      };
+
+      const updateFlavorOptions = () => {
+        const flavorCount = parseInt(
+          document.getElementById("flavor-count").value
+        );
+        const selectedFlavors = [];
+
+        for (let i = 0; i < flavorCount; i++) {
+          const select = document.getElementById(`flavor-select-${i}`);
+          if (select && select.value) {
+            selectedFlavors.push(select.value);
+          }
+        }
+
+        for (let i = 0; i < flavorCount; i++) {
+          const select = document.getElementById(`flavor-select-${i}`);
+          const currentValue = select.value;
+          select.innerHTML =
+            '<option value="">Selecione o sabor ' +
+            (i + 1) +
+            "</option>" +
+            pizzas
+              .filter(
+                (pizza) =>
+                  !selectedFlavors.includes(pizza.id) ||
+                  pizza.id === currentValue
+              )
+              .map(
+                (pizza) => `<option value="${pizza.id}">${pizza.name}</option>`
+              )
+              .join("");
+          select.value = currentValue;
+        }
+      };
+
+      const updatePizzaPreview = () => {
+        const flavorCount = parseInt(
+          document.getElementById("flavor-count").value
+        );
+        const svg = document.getElementById("pizza-svg");
+        svg.innerHTML = "";
+
+        const radius = 90;
+        const centerX = 100;
+        const centerY = 100;
+        const angleStep = 360 / flavorCount;
+
+        svg.innerHTML += `<circle cx="${centerX}" cy="${centerY}" r="${
+          radius + 10
+        }" fill="#e6c84f" />`;
+        svg.innerHTML += `<circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="#fff8e1" />`;
+
+        for (let i = 0; i < flavorCount; i++) {
+          const startAngle = i * angleStep;
+          const endAngle = (i + 1) * angleStep;
+          const startRad = (startAngle * Math.PI) / 180;
+          const endRad = (endAngle * Math.PI) / 180;
+          const x1 = centerX + radius * Math.cos(startRad);
+          const y1 = centerY + radius * Math.sin(startRad);
+          const x2 = centerX + radius * Math.cos(endRad);
+          const y2 = centerY + radius * Math.sin(endRad);
+          const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+
+          const pathD = `M${centerX},${centerY} L${x1},${y1} A${radius},${radius} 0 ${largeArcFlag},1 ${x2},${y2} Z`;
+          svg.innerHTML += `<path d="${pathD}" fill="#ccc" stroke="#8a1c1c" stroke-width="2" />`;
+
+          const flavorSelect = document.getElementById(`flavor-select-${i}`);
+          if (flavorSelect && flavorSelect.value) {
+            const selectedPizza = pizzas.find(
+              (p) => p.id === flavorSelect.value
+            );
+            if (selectedPizza) {
+              svg.innerHTML += `<defs><clipPath id="clip-${i}"><path d="${pathD}" /></clipPath></defs>`;
+              const imgSize = radius * 2;
+              const offsetX = centerX - radius;
+              const offsetY = centerY - radius;
+              svg.innerHTML += `<image xlink:href="${selectedPizza.image}" x="${offsetX}" y="${offsetY}" width="${imgSize}" height="${imgSize}" clip-path="url(#clip-${i})" preserveAspectRatio="xMidYMid slice" />`;
+            }
+          }
+        }
+      };
+
+      const addCustomPizzaToCart = () => {
+        const flavorCount = parseInt(
+          document.getElementById("flavor-count").value
+        );
+        const flavors = [];
+
+        for (let i = 0; i < flavorCount; i++) {
+          const flavorSelect = document.getElementById(`flavor-select-${i}`);
+          if (flavorSelect && flavorSelect.value) {
+            flavors.push(flavorSelect.value);
+          }
+        }
+
+        if (flavors.length !== flavorCount) {
+          showAlertModal(
+            `Por favor, selecione todos os ${flavorCount} sabores para sua pizza personalizada!`,
+            "Erro"
+          );
+          return;
+        }
+
+        const customPizzaId = "custom-" + Date.now().toString();
+        const avgPrice =
+          flavors.reduce((sum, flavorId) => {
+            const pizza = pizzas.find((p) => p.id === flavorId);
+            return sum + (pizza ? pizza.price : 0);
+          }, 0) / flavors.length;
+
+        const cartItem = cart.find(
+          (item) =>
+            item.pizzaId === customPizzaId &&
+            JSON.stringify(item.flavors) === JSON.stringify(flavors)
+        );
+        if (cartItem) {
+          cartItem.quantity++;
+        } else {
+          cart.push({
+            pizzaId: customPizzaId,
+            flavors: flavors,
+            quantity: 1,
+            isCustom: true,
+          });
+        }
+
+        updateCartCount();
+        renderCart();
+        saveToLocalStorage();
+        showAlertModal(
+          "Buonissimo! Sua pizza personalizada está no carrinho!",
+          "Sucesso"
+        );
+        closeCustomPizzaModal();
+      };
+
+      document.addEventListener("DOMContentLoaded", loadInitialData);
+      window.addEventListener("resize", adjustHeaderVisibility);
+    </script>
+  </body>
+</html>

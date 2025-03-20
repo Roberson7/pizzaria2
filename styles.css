@@ -1,0 +1,488 @@
+// Dados iniciais
+const initialData = {
+    pizzas: [
+        { id: "1", name: "Margherita", price: 35.9, description: "Molho de tomate, muçarela e manjericão.", image: "https://images.unsplash.com/photo-1604068549290-dea0e4b45da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80", category: "Pizzas Tradicionais" },
+        { id: "2", name: "Calabresa", price: 38.9, description: "Molho de tomate, calabresa e cebola.", image: "https://images.unsplash.com/photo-1627627331051-703813f99b14?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80", category: "Pizzas Tradicionais" },
+        { id: "3", name: "Chocolate", price: 42.0, description: "Chocolate derretido e granulado.", image: "https://images.unsplash.com/photo-1595877175789-795d5cc88537?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80", category: "Pizzas Doces" },
+    ],
+    categories: ["Pizzas Tradicionais", "Pizzas Doces"],
+    cart: [],
+    carouselImages: [
+        "https://images.unsplash.com/photo-1594007654729-407eedc4be65?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1571066811602-716837d9f582?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+    ],
+    pizzariaConfig: { name: "Pizzaria Italiana", logo: "https://via.placeholder.com/50", whatsapp: "", adminPassword: "Gcipione" }
+};
+
+// Estado global
+let pizzas = JSON.parse(localStorage.getItem("pizzas")) || initialData.pizzas;
+let categories = JSON.parse(localStorage.getItem("categories")) || initialData.categories;
+let cart = JSON.parse(localStorage.getItem("cart")) || initialData.cart;
+let carouselImages = JSON.parse(localStorage.getItem("carouselImages")) || initialData.carouselImages;
+let pizzariaConfig = JSON.parse(localStorage.getItem("pizzariaConfig")) || initialData.pizzariaConfig;
+let selectedCategory = "all";
+let currentSlide = 0;
+let slideInterval;
+let selectedPizzaId = null;
+let customPizzaSlices = [];
+let selectedSlice = -1;
+let flavorCount = 2;
+
+// Funções utilitárias
+const saveToLocalStorage = () => {
+    localStorage.setItem("pizzas", JSON.stringify(pizzas));
+    localStorage.setItem("categories", JSON.stringify(categories));
+    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("carouselImages", JSON.stringify(carouselImages));
+    localStorage.setItem("pizzariaConfig", JSON.stringify(pizzariaConfig));
+};
+
+const formatPrice = (price) => `R$ ${price.toFixed(2).replace(".", ",")}`;
+
+// Inicialização
+const loadInitialData = () => {
+    updatePizzariaDisplay();
+    renderNavbar();
+    renderCarousel();
+    startCarousel();
+    renderPizzas();
+    updateCartCount();
+};
+
+// Navegação
+const renderNavbar = () => {
+    const navbar = document.getElementById("nav-list");
+    navbar.innerHTML = '<li><a href="#" data-category="all" class="active">Todas</a></li>' +
+        categories.map(category => `<li><a href="#" data-category="${category}">${category}</a></li>`).join("");
+    document.querySelectorAll(".nav-list a").forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            filterCategory(link.getAttribute("data-category"));
+        });
+    });
+};
+
+const filterCategory = (category) => {
+    selectedCategory = category;
+    renderPizzas();
+    document.querySelectorAll(".nav-list a").forEach(link => {
+        link.classList.toggle("active", link.getAttribute("data-category") === category);
+    });
+    if (window.innerWidth <= 768) toggleMenu();
+};
+
+const toggleMenu = () => {
+    const navList = document.getElementById("nav-list");
+    navList.classList.toggle("show");
+};
+
+// Administração
+const openAdminModal = () => {
+    const modal = document.getElementById("admin-modal");
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10);
+    document.getElementById("admin-login").style.display = "block";
+    document.getElementById("admin-form").style.display = "none";
+};
+
+const closeAdminModal = () => {
+    const modal = document.getElementById("admin-modal");
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+};
+
+const adminLogin = () => {
+    const password = document.getElementById("admin-password").value;
+    if (password === pizzariaConfig.adminPassword) {
+        document.getElementById("admin-login").style.display = "none";
+        document.getElementById("admin-form").style.display = "block";
+        updateAdminForm();
+    } else {
+        alert("Senha incorreta!");
+    }
+};
+
+const updateAdminForm = () => {
+    const adminForm = document.getElementById("admin-form");
+    adminForm.innerHTML = `
+        <h3>Configurações da Pizzaria</h3>
+        <input type="text" id="pizzaria-name-input" value="${pizzariaConfig.name}">
+        <input type="text" id="pizzaria-logo-input" value="${pizzariaConfig.logo}">
+        <button onclick="updatePizzaria()">Atualizar</button>
+        <h3>Adicionar Pizza</h3>
+        <input type="text" id="pizza-name" placeholder="Nome">
+        <input type="number" id="pizza-price" placeholder="Preço" step="0.01">
+        <input type="text" id="pizza-description" placeholder="Descrição">
+        <input type="text" id="pizza-image" placeholder="URL da Imagem">
+        <button onclick="addPizza()">Adicionar</button>
+        <h3>Imagens do Carrossel</h3>
+        <input type="text" id="carousel-image-input" placeholder="URL da Imagem">
+        <button onclick="addCarouselImage()">Adicionar Imagem</button>
+        <div id="carousel-images">${carouselImages.map((img, i) => `<p>${img} <button onclick="deleteCarouselImage(${i})">Excluir</button></p>`).join("")}</div>
+    `;
+};
+
+const updatePizzaria = () => {
+    pizzariaConfig.name = document.getElementById("pizzaria-name-input").value;
+    pizzariaConfig.logo = document.getElementById("pizzaria-logo-input").value;
+    saveToLocalStorage();
+    updatePizzariaDisplay();
+};
+
+const updatePizzariaDisplay = () => {
+    document.getElementById("pizzaria-name").textContent = pizzariaConfig.name;
+    document.getElementById("pizzaria-logo").src = pizzariaConfig.logo;
+};
+
+const addPizza = () => {
+    const pizza = {
+        id: Date.now().toString(),
+        name: document.getElementById("pizza-name").value,
+        price: parseFloat(document.getElementById("pizza-price").value),
+        description: document.getElementById("pizza-description").value,
+        image: document.getElementById("pizza-image").value || "https://via.placeholder.com/300"
+    };
+    pizzas.push(pizza);
+    saveToLocalStorage();
+    renderPizzas();
+};
+
+// Produtos
+const renderPizzas = () => {
+    const productsGrid = document.getElementById("products");
+    const filteredPizzas = selectedCategory === "all" ? pizzas : pizzas.filter(p => p.category === selectedCategory);
+    productsGrid.innerHTML = filteredPizzas.map(pizza => `
+        <div class="product-card">
+            <img src="${pizza.image}" alt="${pizza.name}" onclick="showProductDetail('${pizza.id}')">
+            <h3>${pizza.name}</h3>
+            <div class="price-container">
+                <span class="single-price">${formatPrice(pizza.price)}</span>
+            </div>
+            <button onclick="addToCart('${pizza.id}')">Adicionar ao Carrinho</button>
+        </div>
+    `).join("");
+};
+
+// Detalhes do Produto
+const showProductDetail = (pizzaId) => {
+    const pizza = pizzas.find(p => p.id === pizzaId);
+    if (!pizza) return;
+    selectedPizzaId = pizzaId;
+    document.getElementById("product-detail-name").textContent = pizza.name;
+    document.getElementById("product-detail-image").src = pizza.image;
+    document.getElementById("product-detail-description").textContent = pizza.description;
+    document.getElementById("product-detail-price").textContent = formatPrice(pizza.price);
+    const modal = document.getElementById("product-detail-modal");
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10);
+};
+
+const closeProductDetailModal = () => {
+    const modal = document.getElementById("product-detail-modal");
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+};
+
+const addToCartFromDetail = () => {
+    if (selectedPizzaId) addToCart(selectedPizzaId);
+    closeProductDetailModal();
+};
+
+// Carrinho
+const addToCart = (pizzaId) => {
+    const pizza = pizzas.find(p => p.id === pizzaId);
+    if (!pizza) return;
+
+    const cartItem = cart.find(item => item.pizzaId === pizzaId);
+    if (cartItem) {
+        cartItem.quantity++;
+    } else {
+        cart.push({ pizzaId, quantity: 1, name: pizza.name, image: pizza.image, price: pizza.price });
+    }
+    updateCartCount();
+    renderCart();
+    saveToLocalStorage();
+};
+
+const renderCart = () => {
+    const cartItems = document.getElementById("cart-items");
+    let total = 0;
+    cartItems.innerHTML = cart.map(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        const displayName = item.isCustom ? `Pizza Personalizada (${item.slices.join(", ")})` : item.name;
+        return `
+            <div class="cart-item">
+                <img src="${item.image}" alt="${displayName}">
+                <div class="item-details">
+                    <span>${displayName}</span>
+                    <span>${item.quantity}x - ${formatPrice(itemTotal)}</span>
+                </div>
+                <button onclick="removeFromCart('${item.pizzaId}')">Excluir</button>
+            </div>
+        `;
+    }).join("");
+    document.getElementById("cart-total").textContent = `Total: ${formatPrice(total)}`;
+};
+
+const removeFromCart = (pizzaId) => {
+    cart = cart.filter(item => item.pizzaId !== pizzaId);
+    updateCartCount();
+    renderCart();
+    saveToLocalStorage();
+};
+
+const updateCartCount = () => {
+    document.getElementById("cart-count").textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+};
+
+const toggleCart = () => {
+    const modal = document.getElementById("cart-modal");
+    modal.classList.toggle("show");
+    if (modal.classList.contains("show")) {
+        modal.style.display = "block";
+        renderCart();
+    } else {
+        setTimeout(() => modal.style.display = "none", 300);
+    }
+};
+
+// Carrossel
+const renderCarousel = () => {
+    const carousel = document.getElementById("carousel-container");
+    if (!carousel) return;
+    carousel.style.width = `${carouselImages.length * 100}%`;
+    carousel.innerHTML = carouselImages.map((img, index) => `
+        <img src="${img}" alt="Slide ${index + 1}" class="carousel-slide" style="width: ${100 / carouselImages.length}%;">
+    `).join("");
+};
+
+const startCarousel = () => {
+    clearInterval(slideInterval);
+    if (carouselImages.length > 1) slideInterval = setInterval(nextSlide, 5000);
+};
+
+const nextSlide = () => {
+    currentSlide = (currentSlide + 1) % carouselImages.length;
+    updateCarouselPosition();
+};
+
+const updateCarouselPosition = () => {
+    const carousel = document.getElementById("carousel-container");
+    if (!carousel) return;
+    carousel.style.transform = `translateX(-${currentSlide * (100 / carouselImages.length)}%)`;
+};
+
+// Checkout
+const openCheckoutModal = () => {
+    const modal = document.getElementById("checkout-modal");
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10);
+    document.getElementById("checkout-form").onsubmit = (e) => {
+        e.preventDefault();
+        alert("Pedido enviado!");
+        cart = [];
+        saveToLocalStorage();
+        updateCartCount();
+        closeCheckoutModal();
+        toggleCart();
+    };
+};
+
+const closeCheckoutModal = () => {
+    const modal = document.getElementById("checkout-modal");
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+};
+
+// Monte sua Pizza
+const openCustomPizzaModal = () => {
+    const modal = document.getElementById("custom-pizza-modal");
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10);
+    flavorCount = parseInt(document.getElementById("flavor-count").value);
+    customPizzaSlices = Array(flavorCount).fill(null);
+    selectedSlice = 0;
+    document.getElementById("flavor-count").addEventListener("change", updateFlavorCount);
+    populateFlavorSelect();
+    renderPizzaSVG();
+    updateCustomPizzaSummary();
+};
+
+const closeCustomPizzaModal = () => {
+    const modal = document.getElementById("custom-pizza-modal");
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+    document.getElementById("flavor-count").removeEventListener("change", updateFlavorCount);
+};
+
+const updateFlavorCount = () => {
+    const newFlavorCount = parseInt(document.getElementById("flavor-count").value);
+    if (newFlavorCount !== flavorCount) {
+        flavorCount = newFlavorCount;
+        customPizzaSlices = Array(flavorCount).fill(null);
+        selectedSlice = 0;
+        populateFlavorSelect();
+        renderPizzaSVG();
+        updateCustomPizzaSummary();
+    }
+};
+
+const renderPizzaSVG = () => {
+    const svg = document.getElementById("pizza-svg");
+    const size = 250;
+    svg.setAttribute("width", size);
+    svg.setAttribute("height", size);
+    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    svg.style.transition = "all 0.3s ease";
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2 - 15;
+
+    svg.innerHTML = `<circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="#f5deb3" stroke="#2e7d32" stroke-width="2"/>`;
+
+    const slices = flavorCount;
+    const angleStep = (2 * Math.PI) / slices;
+
+    for (let i = 0; i < slices; i++) {
+        const startAngle = i * angleStep;
+        const endAngle = (i + 1) * angleStep;
+        const x1 = centerX + radius * Math.cos(startAngle);
+        const y1 = centerY + radius * Math.sin(startAngle);
+        const x2 = centerX + radius * Math.cos(endAngle);
+        const y2 = centerY + radius * Math.sin(endAngle);
+        const largeArcFlag = endAngle - startAngle <= Math.PI ? 0 : 1;
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", `M ${centerX},${centerY} L ${x1},${y1} A ${radius},${radius} 0 ${largeArcFlag} 1 ${x2},${y2} Z`);
+        path.setAttribute("fill", customPizzaSlices[i] ? "#f5deb3" : "#d3d3d3");
+        path.setAttribute("stroke", "#2e7d32");
+        path.setAttribute("stroke-width", i === selectedSlice ? "4" : "2");
+        path.setAttribute("data-index", i);
+        path.style.cursor = "pointer";
+        path.style.transition = "fill 0.3s ease, stroke-width 0.3s ease";
+        path.addEventListener("click", () => selectSliceForEdit(i));
+        path.addEventListener("mouseover", () => {
+            if (!customPizzaSlices[i]) path.setAttribute("fill", "#e0e0e0");
+        });
+        path.addEventListener("mouseout", () => {
+            if (!customPizzaSlices[i]) path.setAttribute("fill", "#d3d3d3");
+        });
+        svg.appendChild(path);
+
+        // Adicionar imagem da pizza ocupando toda a fatia
+        if (customPizzaSlices[i]) {
+            const pizza = pizzas.find(p => p.name === customPizzaSlices[i]);
+            if (pizza && pizza.image) {
+                const imgSize = radius * 2; // Tamanho para cobrir toda a fatia
+                const imgX = centerX - imgSize / 2; // Centralizar no eixo X
+                const imgY = centerY - imgSize / 2; // Centralizar no eixo Y
+
+                const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                img.setAttributeNS("http://www.w3.org/1999/xlink", "href", pizza.image);
+                img.setAttribute("x", imgX);
+                img.setAttribute("y", imgY);
+                img.setAttribute("width", imgSize);
+                img.setAttribute("height", imgSize);
+                img.setAttribute("clip-path", `path('M ${centerX},${centerY} L ${x1},${y1} A ${radius},${radius} 0 ${largeArcFlag} 1 ${x2},${y2} Z')`);
+                img.style.opacity = "0";
+                img.style.transition = "opacity 0.5s ease";
+                svg.appendChild(img);
+                setTimeout(() => img.style.opacity = "1", 50);
+            }
+        }
+    }
+};
+
+const populateFlavorSelect = () => {
+    const flavorSelect = document.getElementById("flavor-select");
+    flavorSelect.innerHTML = '<option value="">Selecione um sabor</option>' +
+        pizzas.map(pizza => `<option value="${pizza.name}">${pizza.name} - ${formatPrice(pizza.price)}</option>`).join("");
+    flavorSelect.onchange = (e) => {
+        const selectedFlavor = e.target.value.split(" - ")[0];
+        if (selectedFlavor && selectedSlice >= 0) {
+            customPizzaSlices[selectedSlice] = selectedFlavor;
+            renderPizzaSVG();
+            updateCustomPizzaSummary();
+            selectedSlice = customPizzaSlices.includes(null) ? customPizzaSlices.indexOf(null) : -1;
+            populateFlavorSelect();
+            const pizza = pizzas.find(p => p.name === selectedFlavor);
+            const flavorImage = document.getElementById("selected-flavor-image");
+            if (pizza && pizza.image) {
+                flavorImage.src = pizza.image;
+                flavorImage.style.opacity = "0";
+                flavorImage.style.display = "block";
+                setTimeout(() => flavorImage.style.opacity = "1", 100);
+            } else {
+                flavorImage.style.display = "none";
+            }
+        }
+    };
+};
+
+const selectSliceForEdit = (index) => {
+    selectedSlice = index;
+    const flavorSelect = document.getElementById("flavor-select");
+    flavorSelect.value = customPizzaSlices[index] ? `${customPizzaSlices[index]} - ${formatPrice(pizzas.find(p => p.name === customPizzaSlices[index]).price)}` : "";
+    const flavorImage = document.getElementById("selected-flavor-image");
+    const pizza = pizzas.find(p => p.name === customPizzaSlices[index]);
+    if (pizza && pizza.image) {
+        flavorImage.src = pizza.image;
+        flavorImage.style.opacity = "0";
+        flavorImage.style.display = "block";
+        setTimeout(() => flavorImage.style.opacity = "1", 100);
+    } else {
+        flavorImage.style.display = "none";
+    }
+    renderPizzaSVG();
+};
+
+const updateCustomPizzaSummary = () => {
+    const modalContent = document.querySelector("#custom-pizza-modal .modal-content");
+    let summary = modalContent.querySelector("#custom-pizza-summary");
+    if (!summary) {
+        summary = document.createElement("div");
+        summary.id = "custom-pizza-summary";
+        summary.style.marginTop = "10px";
+        summary.style.fontSize = "14px";
+        summary.style.color = "#2e7d32";
+        modalContent.insertBefore(summary, modalContent.querySelector("button"));
+    }
+    const totalPrice = customPizzaSlices.reduce((total, slice) => {
+        const pizza = pizzas.find(p => p.name === slice);
+        return total + (pizza ? pizza.price / flavorCount : 0);
+    }, 0);
+    summary.innerHTML = `
+        <strong>Sabores Escolhidos:</strong> ${customPizzaSlices.filter(s => s).join(", ") || "Nenhum"}<br>
+        <strong>Total:</strong> ${formatPrice(totalPrice)}
+    `;
+};
+
+const addCustomPizzaToCart = () => {
+    if (customPizzaSlices.includes(null)) {
+        alert("Preencha todos os sabores antes de adicionar ao carrinho!");
+        return;
+    }
+    const customImage = pizzas.find(p => p.name === customPizzaSlices[0]).image;
+    cart.push({
+        pizzaId: `custom-${Date.now()}`,
+        quantity: 1,
+        isCustom: true,
+        slices: customPizzaSlices.slice(),
+        price: customPizzaSlices.reduce((total, slice) => {
+            const pizza = pizzas.find(p => p.name === slice);
+            return total + (pizza ? pizza.price / flavorCount : 0);
+        }, 0),
+        image: customImage,
+        name: `Pizza Personalizada (${customPizzaSlices.join(", ")})`
+    });
+    updateCartCount();
+    renderCart();
+    saveToLocalStorage();
+    closeCustomPizzaModal();
+    alert("Pizza personalizada adicionada ao carrinho!");
+};
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", loadInitialData);
